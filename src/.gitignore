@@ -1,8 +1,7 @@
 *.o
 *~
 *.sw*
-cli
-tags
+dcpu16emu
 test
 .DS_Store
 nbproject
