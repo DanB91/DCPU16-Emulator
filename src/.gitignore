@@ -1,0 +1,9 @@
+*.o
+*~
+*.sw*
+cli
+tags
+test
+.DS_Store
+nbproject
+.clang_complete
