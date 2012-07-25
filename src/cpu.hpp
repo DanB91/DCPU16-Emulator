@@ -1,6 +1,7 @@
 #pragma once
 #include "DCPU16Exception.hpp"
 #include "opcodes.hpp"
+#include "types.hpp"
 #include <array>
 #include <unordered_map>
 #include <functional>
@@ -9,27 +10,29 @@
 #define RAM_SIZE 65536
 
 
-typedef uint_least16_t udcpu_word;
-typedef int_least16_t dcpu_word;
 
-namespace CPU{
+namespace CPU{  
 
-    std::array<udcpu_word, RAM_SIZE> RAM;
+    std::array<dcpu_word, RAM_SIZE> RAM;
 
     dcpu_word A, B, C, X, Y, Z, I, J; //registers
-    udcpu_word programCounter, stackPointer, interruptAddress, excess;
+    dcpu_word programCounter = 0, stackPointer = 0, interruptAddress = 0, excess = 0;
+
+    const std::unordered_map<int, OpCode> basicOpCodeFunctionMap({
+            {SET, OpCode(1, [](dcpu_word &b, dcpu_word a){b = a;})},
+            
+            {ADD, OpCode(2, [&](dcpu_word &b, dcpu_word a){
+            excess = int(b + a) >> 16;
+            b += a;
+            })}
+
+            });
+
+    
 
 
-    std::unordered_map<udcpu_word, std::function<void(dcpu_word&, dcpu_word)>> basicOpCodeFunctionMap({
-            {SET, [](dcpu_word &b, dcpu_word a){b = a;}},
-            {ADD, [&](dcpu_word &b, dcpu_word a){
-                excess = int(b + a) >> 4;
-                b += a;
-            }}
-
-    });
-
-
+    void runNextInstruction();
+    size_t loadProgramIntoRAM(char *);
 
 
 

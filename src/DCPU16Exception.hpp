@@ -6,6 +6,7 @@
 #pragma once
 
 #include <exception>
+#include <string>
 
 
 class DCPU16Exception : public std::exception
