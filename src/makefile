@@ -2,11 +2,11 @@
 .SUFFIXES: .cpp .o
 
 
-CC = g++-fsf-4.7
+CC = clang++ 
 OBJ = main.o cpu.o
 INC =
-DYLIB = -lncurses
-CFLAGS =-std=c++11  -g
+DYLIB = -lncurses -stdlib=libc++
+CFLAGS =-std=c++11 -stdlib=libc++ -g
 %.o: %.cpp
 	$(CC) $(INC) $(CFLAGS) -c $<
 all: dcpu16emu

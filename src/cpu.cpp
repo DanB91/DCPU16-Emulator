@@ -1,11 +1,13 @@
 #include "cpu.hpp"
+#include <atomic>
 
 namespace CPU{
 
-   
-    int currentCycleCount = 0;
 
-    dcpu_word &nonLiteralValue(dcpu_word valueRepresentation, bool isFirstArgumentInInstruction)
+    static std::atomic<bool> isFinished;
+
+
+    static dcpu_word &nonLiteralValue(dcpu_word valueRepresentation, bool isFirstArgumentInInstruction)
     {
         switch(valueRepresentation)
         {
@@ -45,28 +47,28 @@ namespace CPU{
                 return RAM[J];
                 //[register + next word]
             case 0x10:
-                currentCycleCount++;
+                cyclesSinceLastInstruction++;
                 return RAM[A + RAM[++programCounter]];
             case 0x11:
-                currentCycleCount++;
+                cyclesSinceLastInstruction++;
                 return RAM[B + RAM[++programCounter]];
             case 0x12:
-                currentCycleCount++;
+                cyclesSinceLastInstruction++;
                 return RAM[C + RAM[++programCounter]];
             case 0x13:
-                currentCycleCount++;
+                cyclesSinceLastInstruction++;
                 return RAM[X + RAM[++programCounter]];
             case 0x14:
-                currentCycleCount++;
+                cyclesSinceLastInstruction++;
                 return RAM[Y + RAM[++programCounter]];
             case 0x15:
-                currentCycleCount++;
+                cyclesSinceLastInstruction++;
                 return RAM[Z + RAM[++programCounter]];
             case 0x16:
-                currentCycleCount++;
+                cyclesSinceLastInstruction++;
                 return RAM[I + RAM[++programCounter]];
             case 0x17:
-                currentCycleCount++;
+                cyclesSinceLastInstruction++;
                 return RAM[J + RAM[++programCounter]];
             case 0x18:
                 //push
@@ -80,7 +82,7 @@ namespace CPU{
                 return RAM[stackPointer];
             case 0x1A:
                 //pick
-                currentCycleCount++;
+                cyclesSinceLastInstruction++;
                 return RAM[stackPointer + RAM[++programCounter]];
             case 0x1B:
                 return stackPointer;
@@ -92,8 +94,8 @@ namespace CPU{
                 return RAM[RAM[++programCounter]];
             case 0x1F:
                 return RAM[++programCounter];
-           
-
+            default:
+                throw DCPU16Exception("Illegal argument passed in");
 
         }
 
@@ -102,48 +104,50 @@ namespace CPU{
 
 
 
-    void runSpecialInstruction()
+    static void runSpecialInstruction()
     {
 
     }
 
-    void runBasicInstruction()
+    static void runBasicInstruction()
     {
-       dcpu_word opcode = RAM[programCounter] & 0x1F;
-       dcpu_word firstInstructionArgument = (RAM[programCounter] >> 5) & 0x1F;
-       dcpu_word secondInstructionArgument = RAM[programCounter] >> 10;
+        const OpCode &op = basicOpCodeFunctionMap.at(RAM[programCounter] & 0x1F); 
+        dcpu_word firstInstructionArgument = (RAM[programCounter] >> 5) & 0x1F;
+        dcpu_word secondInstructionArgument = RAM[programCounter] >> 10;
 
-       
-       if(firstInstructionArgument > 0x1F)
-           return;  //we are assigning to a literal value, silently fail here
+        //we are assigning to a literal value, silently fail here
+        if(firstInstructionArgument > 0x1F){
+            programCounter++;
+            return; 
+        }
+
+        dcpu_word &firstArgumentValue = nonLiteralValue(firstInstructionArgument, true);
+        dcpu_word secondArgumentValue = (secondInstructionArgument < 0x20) ? nonLiteralValue(secondInstructionArgument, false) :
+            0;
+
+        programCounter++; 
+
+        op(firstArgumentValue, secondArgumentValue);
+        cyclesSinceLastInstruction += op.cycleCount;
 
 
-       dcpu_word &firstArgumentValue = nonLiteralValue(firstInstructionArgument, true);
-       dcpu_word secondArgumentValue = (secondInstructionArgument < 0x20) ? nonLiteralValue(secondInstructionArgument, false) :
-           0;
 
-       programCounter++;
-       
-       basicOpCodeFunctionMap.at(opcode)(firstArgumentValue, secondArgumentValue);
-
-
-       
 
     }
 
-    void runNextInstruction()
+    static void runNextInstruction()
     {
-       
+
 
         if((RAM[programCounter] & 0x1F) != 0)
             runBasicInstruction();
         else
             runSpecialInstruction();
 
-       
+
     }
 
-    size_t loadProgramIntoRAM(char *programFileName)
+    static size_t loadProgramIntoRAM(char *programFileName)
     {
 
         FILE *assembledProgramFile;
@@ -162,6 +166,24 @@ namespace CPU{
         return lengthOfProgramInWords;
 
     }
+
+    void startExecutionOfProgram(char *programFileName)
+    {
+        size_t lengthOfProgramInWords;
+        isFinished.store(false);
+
+        lengthOfProgramInWords = loadProgramIntoRAM(programFileName);
+
+        while(programCounter < lengthOfProgramInWords){
+            runNextInstruction();
+        }
+
+        isFinished = true;
+
+
+    }
+
+    bool hasProgramFinished(){return isFinished.load();}
 
 
 

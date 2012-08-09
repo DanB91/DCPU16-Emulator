@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ncurses.h>
 #include "cpuExterns.hpp"
+#include <thread>
 
 
 #define MIN_ARGS 2
@@ -14,35 +15,35 @@ void printUsage()
 
 void drawScreen()
 {
-    printw("A: %x\tB: %x\tC: %x\tX: %x\tY: %x\tZ: %x\tI: %x\tJ: %x\n\n", CPU::A, CPU::B, CPU::C, CPU::X, CPU::Y, CPU::Z, CPU::I, CPU::J);
-    printw("PC: %x", CPU::programCounter);
-    move(0,0);
-    refresh();
+    while(!CPU::hasProgramFinished()){
+        printw("A: %x\tB: %x\tC: %x\tX: %x\tY: %x\tZ: %x\tI: %x\tJ: %x\n\n", CPU::A, CPU::B, CPU::C, CPU::X, CPU::Y, CPU::Z, CPU::I, CPU::J);
+        printw("PC: %x\tEX: %x", CPU::programCounter, CPU::excess);
+        move(0,0);
+        refresh();
+    }
 }
 
 int main(int argc, char **argv)
 {
 
-    size_t lengthOfProgramInWords;
-
+   
     if(argc < MIN_ARGS || argc > MAX_ARGS)
     {
         printUsage();
         exit(1);
     }
 
-    try{
-        initscr();
-        lengthOfProgramInWords = CPU::loadProgramIntoRAM(argv[1]);
+    initscr();
+    std::thread printingOutputToScreenThread(drawScreen);
 
-        while(CPU::programCounter < lengthOfProgramInWords){
-            drawScreen();
-            CPU::runNextInstruction();
-        }
-        
+
+    try{
+        CPU::startExecutionOfProgram(argv[1]);
     }catch(DCPU16Exception &e){
         std::cerr << e.what() << '\n';
     }
+
+    printingOutputToScreenThread.join();
 
     endwin();
     
