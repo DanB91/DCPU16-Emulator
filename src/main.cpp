@@ -17,7 +17,8 @@ void drawScreen()
 {
     while(!CPU::hasProgramFinished()){
         printw("A: %x\tB: %x\tC: %x\tX: %x\tY: %x\tZ: %x\tI: %x\tJ: %x\n\n", CPU::A, CPU::B, CPU::C, CPU::X, CPU::Y, CPU::Z, CPU::I, CPU::J);
-        printw("PC: %x\tEX: %x", CPU::programCounter, CPU::excess);
+        printw("PC: %x\tEX: %x, Cycle Count: %d", CPU::programCounter, CPU::excess, CPU::totalCycles);
+        
         move(0,0);
         refresh();
     }

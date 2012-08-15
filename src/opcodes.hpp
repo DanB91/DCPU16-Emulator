@@ -130,9 +130,29 @@ namespace CPU{
                         programCounter++;
                         cyclesSinceLastInstruction++;
                         }
+
+                        programCounter++;
+                        cyclesSinceLastInstruction++;
                     }
-                    
+
+                                        
+                    })},
+
+            {0x11, OpCode(2, [&](dcpu_word &b, dcpu_word a){            
+                    if(b&a){
+                        
+                    while((RAM[programCounter] & 0x1F) < 0x17 && (RAM[programCounter] & 0x1F) > 0x10){
+                        programCounter++;
+                        cyclesSinceLastInstruction++;
+                        }
+
+                        programCounter++;
+                        cyclesSinceLastInstruction++;
+                    }
+
+                                        
                     })}
+
 
 
 

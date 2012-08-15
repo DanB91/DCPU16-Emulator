@@ -144,6 +144,8 @@ namespace CPU{
         else
             runSpecialInstruction();
 
+        totalCycles += cyclesSinceLastInstruction;
+
 
     }
 
