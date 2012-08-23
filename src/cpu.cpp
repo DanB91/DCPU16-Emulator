@@ -1,5 +1,7 @@
 #include "cpu.hpp"
 #include <atomic>
+#include <ctime>
+#include <unistd.h>
 
 namespace CPU{
 
@@ -169,6 +171,23 @@ namespace CPU{
 
     }
 
+    static void step(){
+
+        clock_t timeBeforeInstruction = clock();
+        
+        runNextInstruction();
+                
+        double secondsSinceLastInstruction = double(clock() - timeBeforeInstruction) / CLOCKS_PER_SEC;
+
+        usleep(double(cyclesSinceLastInstruction) / clockSpeed * 1000000 - (secondsSinceLastInstruction * 1000000));
+  
+        totalCycles += cyclesSinceLastInstruction;
+        cyclesSinceLastInstruction = 0;
+
+
+
+    }
+
     void startExecutionOfProgram(char *programFileName)
     {
         size_t lengthOfProgramInWords;
@@ -177,11 +196,14 @@ namespace CPU{
         lengthOfProgramInWords = loadProgramIntoRAM(programFileName);
 
         while(programCounter < lengthOfProgramInWords){
-            runNextInstruction();
+            
+          step(); 
+             
+              
         }
 
         isFinished = true;
-
+        
 
     }
 

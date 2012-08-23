@@ -2,7 +2,7 @@
 #include <ncurses.h>
 #include "cpuExterns.hpp"
 #include <thread>
-
+#include <unistd.h>
 
 #define MIN_ARGS 2
 #define MAX_ARGS 2
@@ -17,10 +17,12 @@ void drawScreen()
 {
     while(!CPU::hasProgramFinished()){
         printw("A: %x\tB: %x\tC: %x\tX: %x\tY: %x\tZ: %x\tI: %x\tJ: %x\n\n", CPU::A, CPU::B, CPU::C, CPU::X, CPU::Y, CPU::Z, CPU::I, CPU::J);
-        printw("PC: %x\tEX: %x, Cycle Count: %d", CPU::programCounter, CPU::excess, CPU::totalCycles);
+        printw("PC: %x\tEX: %x, Cycle Count: %d, Clock Speed: %f", CPU::programCounter, CPU::excess, CPU::totalCycles, CPU::realTimeClockSpeed);
         
         move(0,0);
         refresh();
+        usleep(1000);
+
     }
 }
 

@@ -19,10 +19,11 @@ namespace CPU{
     dcpu_word A, B, C, X, Y, Z, I, J; //registers
     dcpu_word programCounter = 0, stackPointer = 0, interruptAddress = 0, excess = 0;
 
-    int totalCycles = 0;
-    int cyclesSinceLastInstruction = 0;
+    unsigned int totalCycles = 0;
+    unsigned int cyclesSinceLastInstruction = 0;
 
-
+    const int clockSpeed = 10000;
+    
         
 
 
