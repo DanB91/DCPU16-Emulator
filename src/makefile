@@ -1,12 +1,22 @@
 
 .SUFFIXES: .cpp .o
 
+PRECFLAGS = -g -std=c++11
+PREDYLIB = -lncurses 
+
+
+ifeq ($(shell uname),Darwin)
+	CFLAGS = $(PRECFLAGS) -stdlib=libc++
+	DYLIB = $(PREDYLIB) -stdlib=libc++
+else
+	CFLAGS = $(PRECFLAGS)
+	DYLIB = $(PREDYLIB) 
+
+endif
 
 CC = clang++ 
 OBJ = main.o cpu.o
 INC =
-DYLIB = -lncurses -stdlib=libc++
-CFLAGS =-std=c++11 -stdlib=libc++ -g
 %.o: %.cpp
 	$(CC) $(INC) $(CFLAGS) -c $<
 all: dcpu16emu

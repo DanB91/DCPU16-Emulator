@@ -23,7 +23,7 @@ namespace CPU{
     unsigned int cyclesSinceLastInstruction = 0;
 
     const int clockSpeed = 10000;
-    
+    unsigned int realTimeClockSpeed = 0;
         
 
 

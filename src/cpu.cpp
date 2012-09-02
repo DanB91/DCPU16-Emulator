@@ -171,15 +171,53 @@ namespace CPU{
 
     }
 
+     int getRealTimeCPUClock(){
+        static int totalCyclesInOneSecond = 0;
+        static clock_t startTime = clock();
+
+        int returnValue = -1;
+
+        if((clock() - startTime) / CLOCKS_PER_SEC < 1)
+            totalCyclesInOneSecond += cyclesSinceLastInstruction;
+        else{
+            returnValue = totalCyclesInOneSecond;
+            startTime = clock();
+            totalCyclesInOneSecond = 0; 
+        }
+
+        return returnValue;
+
+
+
+        
+    }
+
+
+
+    /*
+     * runs next instruction and updates the real time clock speed. Hopefully sleeps an accurate ammount of time 
+     * to reflect the clockspeed
+     */
     static void step(){
 
         clock_t timeBeforeInstruction = clock();
         
         runNextInstruction();
+
+        
+        unsigned int rtcp = getRealTimeCPUClock(); //real time clock speed
+
+        if(rtcp != -1)
+            realTimeClockSpeed = rtcp;
                 
         double secondsSinceLastInstruction = double(clock() - timeBeforeInstruction) / CLOCKS_PER_SEC;
 
-        usleep(double(cyclesSinceLastInstruction) / clockSpeed * 1000000 - (secondsSinceLastInstruction * 1000000));
+        double microSecondsToSleep = double(cyclesSinceLastInstruction) / clockSpeed * 1000000 - (secondsSinceLastInstruction * 1000000);
+
+        if(microSecondsToSleep <= 0)
+            microSecondsToSleep = 0;
+
+        usleep(microSecondsToSleep);
   
         totalCycles += cyclesSinceLastInstruction;
         cyclesSinceLastInstruction = 0;

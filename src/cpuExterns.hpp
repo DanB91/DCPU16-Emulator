@@ -19,7 +19,7 @@ namespace CPU{
     extern dcpu_word A, B, C, X, Y, Z, I, J; //registers
     extern dcpu_word programCounter, stackPointer, interruptAddress, excess;
 
-    extern unsigned int totalCycles, cyclesSinceLastInstruction;
+    extern unsigned int totalCycles, cyclesSinceLastInstruction, realTimeClockSpeed;
     
 
 
