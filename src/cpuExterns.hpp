@@ -24,7 +24,6 @@ namespace CPU{
 
 
    void startExecutionOfProgram(char*);
-   bool hasProgramFinished();
 
 
 }

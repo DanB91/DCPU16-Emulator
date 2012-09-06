@@ -1,7 +1,7 @@
 
 .SUFFIXES: .cpp .o
 
-PRECFLAGS = -g -std=c++11
+PRECFLAGS = -g -std=c++0x
 PREDYLIB = -lncurses 
 
 
