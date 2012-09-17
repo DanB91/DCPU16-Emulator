@@ -14,6 +14,7 @@
 
 namespace CPU{
 
+
     extern std::array<dcpu_word, RAM_SIZE> RAM;
 
     extern dcpu_word A, B, C, X, Y, Z, I, J; //registers
@@ -23,7 +24,6 @@ namespace CPU{
     
 
 
-   void startExecutionOfProgram(char*);
-
+   
 
 }

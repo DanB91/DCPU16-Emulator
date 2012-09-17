@@ -192,8 +192,10 @@ namespace CPU{
 
 	static void drawScreen()
 	{
+
+	
 		printw("A: %x\tB: %x\tC: %x\tX: %x\tY: %x\tZ: %x\tI: %x\tJ: %x\n\n", A, B, C, X, Y, Z, I, J);
-		printw("PC: %x\tEX: %x, Cycle Count: %d, Clock Speed: %f", programCounter, excess, totalCycles, realTimeClockSpeed);
+		printw("PC: %x\tEX: %x, Cycle Count: %d, Clock Speed: %d", programCounter, excess, totalCycles, realTimeClockSpeed);
 
 		move(0,0);
 		refresh();
@@ -216,11 +218,7 @@ namespace CPU{
 		drawScreen();
 
 
-		unsigned int rtcp = getRealTimeCPUClock(); //real time clock speed
-
-		if(rtcp != -1)
-			realTimeClockSpeed = rtcp;
-
+		
 		double secondsSinceLastInstruction = double(clock() - timeBeforeInstruction) / CLOCKS_PER_SEC;
 
 		double microSecondsToSleep = double(cyclesSinceLastInstruction) / clockSpeed * 1000000 - (secondsSinceLastInstruction * 1000000);
@@ -229,6 +227,13 @@ namespace CPU{
 			microSecondsToSleep = 0;
 
 		usleep(microSecondsToSleep);
+
+		unsigned int rtcp = getRealTimeCPUClock(); //real time clock speed
+
+		if(rtcp != -1)
+			realTimeClockSpeed = rtcp;
+
+
 
 		totalCycles += cyclesSinceLastInstruction;
 		cyclesSinceLastInstruction = 0;
@@ -239,9 +244,7 @@ namespace CPU{
 
 	void startExecutionOfProgram(char *programFileName)
 	{
-		size_t lengthOfProgramInWords;
-
-		lengthOfProgramInWords = loadProgramIntoRAM(programFileName);
+		size_t lengthOfProgramInWords = loadProgramIntoRAM(programFileName);
 
 		while(programCounter < lengthOfProgramInWords){
 
