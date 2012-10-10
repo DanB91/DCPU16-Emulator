@@ -3,6 +3,7 @@
 #include <ctime>
 #include <unistd.h>
 #include <ncurses.h>
+#include <future>
 
 namespace CPU{
 
@@ -170,20 +171,10 @@ namespace CPU{
 	}
 
 	static int getRealTimeCPUClock(){
-		static int totalCyclesInOneSecond = 0;
-		static clock_t startTime = clock();
+		int cyclesBeforeTimer = totalCycles;
+		sleep(1);
 
-		int returnValue = -1;
-
-		if((clock() - startTime) / CLOCKS_PER_SEC < 1)
-			totalCyclesInOneSecond += cyclesSinceLastInstruction;
-		else{
-			returnValue = totalCyclesInOneSecond;
-			startTime = clock();
-			totalCyclesInOneSecond = 0; 
-		}
-
-		return returnValue;
+		return totalCycles - cyclesBeforeTimer;
 
 
 
@@ -228,12 +219,6 @@ namespace CPU{
 
 		usleep(microSecondsToSleep);
 
-		unsigned int rtcp = getRealTimeCPUClock(); //real time clock speed
-
-		if(rtcp != -1)
-			realTimeClockSpeed = rtcp;
-
-
 
 		totalCycles += cyclesSinceLastInstruction;
 		cyclesSinceLastInstruction = 0;
@@ -245,9 +230,14 @@ namespace CPU{
 	void startExecutionOfProgram(char *programFileName)
 	{
 		size_t lengthOfProgramInWords = loadProgramIntoRAM(programFileName);
+		auto futureRealTimeClockSpeed = std::async(std::launch::async, getRealTimeCPUClock);
 
 		while(programCounter < lengthOfProgramInWords){
 
+			if(futureRealTimeClockSpeed.wait_for(std::chrono::seconds(0)) == std::future_status::ready){
+				realTimeClockSpeed = futureRealTimeClockSpeed.get();
+				futureRealTimeClockSpeed = std::async(std::launch::async, getRealTimeCPUClock);
+			}
 			step(); 
 
 

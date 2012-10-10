@@ -1,20 +1,19 @@
 
 .SUFFIXES: .cpp .o
 
-PRECFLAGS = -g -std=c++0x
-PREDYLIB = -lncurses 
-
+PRECFLAGS = -g -std=c++0x 
+PREDYLIB = -lncurses -pthread
 
 ifeq ($(shell uname),Darwin)
 	CFLAGS = $(PRECFLAGS) -stdlib=libc++
 	DYLIB = $(PREDYLIB) -stdlib=libc++
+	CC = clang++
 else
 	CFLAGS = $(PRECFLAGS)
 	DYLIB = $(PREDYLIB) 
-
+	CC = g++
 endif
 
-CC = clang++ 
 OBJ = main.o cpu.o
 INC =
 %.o: %.cpp

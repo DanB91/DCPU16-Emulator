@@ -22,12 +22,11 @@ namespace CPU{
     unsigned int totalCycles = 0;
     unsigned int cyclesSinceLastInstruction = 0;
 
-    const int clockSpeed = 10000;
+    int clockSpeed = 10000;
     unsigned int realTimeClockSpeed = 0;
         
 
 
    void startExecutionOfProgram(char*); 
-
 
 }
