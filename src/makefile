@@ -19,10 +19,13 @@ INC =
 %.o: %.cpp
 	$(CC) $(INC) $(CFLAGS) -c $<
 all: dcpu16emu
+test: dcpu16emu
+	./dcpu16emu examples/test.o
+
 dcpu16emu: $(OBJ)
 	$(CC) $(OBJ) $(DYLIB) -o dcpu16emu
 
-main.o: cpuExterns.hpp DCPU16Exception.hpp opcodes.hpp types.hpp
-cpu.o: cpu.hpp DCPU16Exception.hpp opcodes.hpp types.hpp
+main.o: cpu.hpp DCPU16Exception.hpp types.hpp
+cpu.o: cpu.hpp DCPU16Exception.hpp types.hpp
 clean:
 	rm -f tests/*.o *.o core
